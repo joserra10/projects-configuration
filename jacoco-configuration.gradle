@@ -1,3 +1,17 @@
+ext {
+    jacocoVersion = '0.8.6'
+    jacocoRules = [
+        'instruction': 95,
+        'branch'     : 95,
+        'line'       : 95,
+        'method'     : 100,
+        'class'      : 100
+    ]
+    jacocoCoverageExlusions = [
+        'mx/technologeek/blog/data/access/BlogDataAccessApplication.*'
+    ]
+}
+
 jacoco {
     toolVersion = jacocoVersion
 }
@@ -8,19 +22,16 @@ jacocoTestReport {
         xml.enabled = true
         csv.enabled = true
     }
-}
-
-def generateRule(counterValue, minimumValue) {
-  return {
-      counter = counterValue
-      value = 'COVEREDRATIO'
-      minimum = minimumValue
-  }
+    
+    afterEvaluate {
+        addExclusions(classDirectories)
+    }
 }
 
 jacocoTestCoverageVerification {
   violationRules {
     rule {
+      element = 'CLASS'
       limit generateRule('LINE', jacocoRules['line'] / 100)
       limit generateRule('BRANCH', jacocoRules['branch'] / 100)
       limit generateRule('CLASS', jacocoRules['class'] / 100)
@@ -28,4 +39,21 @@ jacocoTestCoverageVerification {
       limit generateRule('METHOD', jacocoRules['method'] / 100)
     }
   }
+  
+  afterEvaluate {
+        addExclusions(classDirectories)
+    }
+}
+
+def generateRule(counterValue, minimumValue) {
+  return {
+      counter = counterValue
+      minimum = minimumValue
+  }
+}
+
+def addExclusions(classDirectories) {
+    classDirectories.setFrom(files(classDirectories.files.collect {
+        fileTree(dir: it, exclude: jacocoCoverageExlusions)
+    }))
 }
