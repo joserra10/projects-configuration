@@ -1,0 +1,31 @@
+jacoco {
+    toolVersion = jacocoVersion
+}
+
+jacocoTestReport {
+    reports {
+        html.enabled = true
+        xml.enabled = true
+        csv.enabled = true
+    }
+}
+
+def generateRule(counterValue, minimumValue) {
+  return {
+      counter = counterValue
+      value = 'COVEREDRATIO'
+      minimum = minimumValue
+  }
+}
+
+jacocoTestCoverageVerification {
+  violationRules {
+    rule {
+      limit generateRule('LINE', jacocoRules['line'] / 100)
+      limit generateRule('BRANCH', jacocoRules['branch'] / 100)
+      limit generateRule('CLASS', jacocoRules['class'] / 100)
+      limit generateRule('INSTRUCTION', jacocoRules['instruction'] / 100)
+      limit generateRule('METHOD', jacocoRules['method'] / 100)
+    }
+  }
+}
